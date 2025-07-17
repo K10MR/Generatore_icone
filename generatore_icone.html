@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore di Icone Personalizzate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts link - will be dynamically updated by JS -->
+    <link id="googleFontLink" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif; /* Default font, will be overridden by selected Google Font */
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        /* Wrapper for image capture with white background */
+        #imageCaptureWrapper {
+            background-color: white; /* White background for capture */
+            padding: 20px; /* Space around the icon */
+            border-radius: 25px; /* Rounded corners for the wrapper */
+            display: inline-block; /* Adapts to content */
+            box-shadow: 0 0 0 rgba(0,0,0,0); /* No shadow for the capture wrapper */
+        }
+
+        .icon-preview {
+            width: 100px; /* Display size of the icon (CSS) */
+            height: 100px; /* Display size of the icon (CSS) */
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Outer shadow */
+            border-radius: 25px; /* Rounded corners of the icon */
+        }
+
+        /* The canvas will be drawn inside icon-preview */
+        #iconCanvas {
+            display: block; /* Removes extra space below the canvas */
+            width: 100%; /* Occupies full width of the CSS container */
+            height: 100%; /* Occupies full height of the CSS container */
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 60px;
+            height: 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+            margin: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 5px;
+        }
+        input[type="color"]::-moz-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-moz-color-swatch {
+            border: none;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"], /* Added for number input */
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus, /* Added for number input */
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .download-button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .download-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+        .download-button:active {
+                transform: translateY(0);
+        }
+        .message-box {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+            font-size: 14px;
+            text-align: left;
+        }
+        .message-box.show {
+            display: block;
+        }
+        .slider-value {
+            font-weight: normal;
+            margin-left: 10px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .font-size-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+        }
+        .font-size-buttons button {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .font-size-buttons button:hover {
+            background-color: #cbd5e0;
+        }
+        .font-size-buttons button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Generatore di Icone</h1>
+
+        <!-- Wrapper for image capture -->
+        <div id="imageCaptureWrapper">
+            <!-- Icon preview (now contains the canvas) -->
+            <div id="iconPreview" class="icon-preview">
+                <canvas id="iconCanvas" width="400" height="400"></canvas> <!-- High-resolution canvas -->
+            </div>
+        </div>
+
+        <!-- Customization controls -->
+        <div class="form-group">
+            <label for="backgroundColor">Colore Sfondo Icona:</label>
+            <input type="color" id="backgroundColor" value="#000000">
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="borderVisible" checked>
+            <label for="borderVisible">Mostra Bordo</label>
+        </div>
+
+        <div class="form-group">
+            <label for="borderColor">Colore Bordo Icona:</label>
+            <input type="color" id="borderColor" value="#000000">
+        </div>
+
+        <div class="form-group">
+            <label for="borderThickness">Spessore Bordo: <span id="borderThicknessValue" class="slider-value">2px</span></label>
+            <input type="range" id="borderThickness" min="0" max="10" value="2" step="1">
+        </div>
+
+        <!-- Text Controls Section (always visible) -->
+        <div id="textControls">
+            <div class="form-group">
+                <label for="textColor">Colore Testo:</label>
+                <input type="color" id="textColor" value="#ff8c00">
+            </div>
+
+            <div class="form-group">
+                <label for="fontSelect">Scegli Font:</label>
+                <select id="fontSelect" class="w-full p-2 border rounded-md">
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Ubuntu">Ubuntu</option>
+                    <option value="Pacifico">Pacifico</option>
+                    <option value="Bebas Neue">Bebas Neue</option>
+                    <option value="Source Code Pro">Source Code Pro</option>
+                    <option value="Permanent Marker">Permanent Marker</option>
+                    <option value="Anton">Anton</option>
+                    <option value="Lobster">Lobster</option>
+                    <option value="Comfortaa">Comfortaa</option>
+                    <option value="Press Start 2P">Press Start 2P</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="iconTextTop">Testo Superiore:</label>
+                <input type="text" id="iconTextTop" value="Guida" maxlength="10">
+            </div>
+
+            <div class="form-group">
+                <label for="fontSizeTop">Dimensione Testo Superiore: <span id="fontSizeTopValue" class="slider-value">18px</span></label>
+                <input type="number" id="fontSizeTop" min="5" max="40" value="18" step="1">
+                <div class="font-size-buttons" data-target="fontSizeTop">
+                    <button data-size="10">10px</button>
+                    <button data-size="15">15px</button>
+                    <button data-size="20">20px</button>
+                    <button data-size="25">25px</button>
+                    <button data-size="30">30px</button>
+                    <button data-size="35">35px</button>
+                    <button data-size="40">40px</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="iconTextBottom">Testo Inferiore:</label>
+                <input type="text" id="iconTextBottom" value="TV" maxlength="10">
+            </div>
+
+            <div class="form-group">
+                <label for="fontSizeBottom">Dimensione Testo Inferiore: <span id="fontSizeBottomValue" class="slider-value">14px</span></label>
+                <input type="number" id="fontSizeBottom" min="5" max="30" value="14" step="1">
+                <div class="font-size-buttons" data-target="fontSizeBottom">
+                    <button data-size="10">10px</button>
+                    <button data-size="15">15px</button>
+                    <button data-size="20">20px</button>
+                    <button data-size="25">25px</button>
+                    <button data-size="30">30px</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="downloadButton" class="download-button">Scarica Icona PNG</button>
+        </div>
+
+        <div id="messageBox" class="message-box"></div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const imageCaptureWrapper = document.getElementById('imageCaptureWrapper');
+        const iconCanvas = document.getElementById('iconCanvas');
+        const ctx = iconCanvas.getContext('2d');
+
+        const backgroundColorInput = document.getElementById('backgroundColor');
+        const borderColorInput = document.getElementById('borderColor');
+        const borderThicknessInput = document.getElementById('borderThickness');
+        const borderThicknessValue = document.getElementById('borderThicknessValue');
+        const borderVisibleInput = document.getElementById('borderVisible');
+        const textColorInput = document.getElementById('textColor');
+        const fontSelect = document.getElementById('fontSelect');
+        const iconTextTopInput = document.getElementById('iconTextTop');
+        const iconTextBottomInput = document.getElementById('iconTextBottom');
+        const fontSizeTopInput = document.getElementById('fontSizeTop');
+        const fontSizeTopValue = document.getElementById('fontSizeTopValue');
+        const fontSizeBottomInput = document.getElementById('fontSizeBottom');
+        const fontSizeBottomValue = document.getElementById('fontSizeBottomValue');
+        const downloadButton = document.getElementById('downloadButton');
+        const messageBox = document.getElementById('messageBox');
+        const googleFontLink = document.getElementById('googleFontLink');
+
+        const canvasSize = 400; // Internal canvas size for high resolution
+        const displaySize = 100; // Display size of the icon
+        const scaleFactor = canvasSize / displaySize; // Scale factor (400/100 = 4)
+
+        const baseBorderRadius = 25; // Base rounded corner radius
+
+        // Function to show a message
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = 'message-box show';
+            if (type === 'error') {
+                messageBox.style.backgroundColor = '#f8d7da';
+                messageBox.style.color = '#721c24';
+                messageBox.style.borderColor = '#f5c6cb';
+            } else {
+                messageBox.style.backgroundColor = '#fff3cd';
+                messageBox.style.color = '#856404';
+                messageBox.style.borderColor = '#ffeeba';
+            }
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 5000); // Message disappears after 5 seconds
+        }
+
+        // Function to draw a rounded rectangle
+        function roundRect(x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        // Main function to draw the icon on the canvas
+        function drawIcon() {
+            ctx.clearRect(0, 0, canvasSize, canvasSize); // Clear the canvas
+
+            const currentBorderThickness = borderVisibleInput.checked ? parseInt(borderThicknessInput.value) * scaleFactor : 0;
+            const currentBorderRadius = baseBorderRadius * scaleFactor;
+
+            // 1. Draw background and border
+            if (borderVisibleInput.checked && currentBorderThickness > 0) {
+                // Draw outer shape with border color
+                ctx.fillStyle = borderColorInput.value;
+                roundRect(0, 0, canvasSize, canvasSize, currentBorderRadius);
+                ctx.fill();
+
+                // Draw inner shape with background color
+                ctx.fillStyle = backgroundColorInput.value;
+                roundRect(currentBorderThickness, currentBorderThickness, canvasSize - 2 * currentBorderThickness, canvasSize - 2 * currentBorderThickness, currentBorderRadius - currentBorderThickness);
+                ctx.fill();
+            } else {
+                // If border is not visible or thickness is 0, draw only the background
+                ctx.fillStyle = backgroundColorInput.value;
+                roundRect(0, 0, canvasSize, canvasSize, currentBorderRadius);
+                ctx.fill();
+            }
+
+            // 2. Draw gloss effect
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvasSize / 2);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = gradient;
+            // Draw only the top part of the rounded rectangle for the gloss, inside the border
+            ctx.beginPath();
+            const glossX = currentBorderThickness;
+            const glossY = currentBorderThickness;
+            const glossWidth = canvasSize - 2 * currentBorderThickness;
+            const glossHeight = (canvasSize / 2) - currentBorderThickness; // Half of the inner height
+            const glossRadius = currentBorderRadius - currentBorderThickness;
+
+            // Path for the gloss (top rounded part)
+            ctx.moveTo(glossX + glossRadius, glossY);
+            ctx.lineTo(glossX + glossWidth - glossRadius, glossY);
+            ctx.quadraticCurveTo(glossX + glossWidth, glossY, glossX + glossWidth, glossY + glossRadius);
+            ctx.lineTo(glossX + glossWidth, glossY + glossHeight);
+            ctx.lineTo(glossX, glossY + glossHeight);
+            ctx.lineTo(glossX, glossY + glossRadius);
+            ctx.quadraticCurveTo(glossX, glossY, glossX + glossRadius, glossY);
+            ctx.closePath();
+            ctx.fill();
+
+            // 3. Draw text
+            const textsToDraw = [];
+            if (iconTextTopInput.value.trim() !== '') {
+                textsToDraw.push({ text: iconTextTopInput.value, fontSize: parseInt(fontSizeTopInput.value) * scaleFactor });
+            }
+            if (iconTextBottomInput.value.trim() !== '') {
+                textsToDraw.push({ text: iconTextBottomInput.value, fontSize: parseInt(fontSizeBottomInput.value) * scaleFactor });
+            }
+
+            ctx.fillStyle = textColorInput.value;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top'; // Use top baseline for precise positioning
+
+            // Set text shadow
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 3 * scaleFactor;
+            ctx.shadowOffsetX = 1 * scaleFactor;
+            ctx.shadowOffsetY = 1 * scaleFactor;
+
+            let totalBlockHeight = 0;
+            textsToDraw.forEach(t => {
+                totalBlockHeight += t.fontSize * 1.1; // Assuming line-height factor of 1.1
+            });
+
+            // Define the target Y for the top of the first line of text
+            // This is the "imaginary line"
+            let targetYForFirstLineTop = (canvasSize / 2) - (20 * scaleFactor); // 20px above center on display size
+
+            let currentY = targetYForFirstLineTop;
+
+            // Adjust currentY based on the number of lines to ensure the block is centered around the targetY
+            if (textsToDraw.length === 1) {
+                // If only one line, center it vertically around the targetYForFirstLineTop
+                currentY = targetYForFirstLineTop - (textsToDraw[0].fontSize * 1.1 / 2); // Move up half its height
+            } else if (textsToDraw.length === 2) {
+                // If two lines, the top of the first line should be at targetYForFirstLineTop
+                // No additional adjustment needed for currentY as it's already set to targetYForFirstLineTop
+            }
+
+            textsToDraw.forEach((t, index) => {
+                ctx.font = `${t.fontSize}px '${fontSelect.value}', sans-serif`;
+                ctx.fillText(t.text, canvasSize / 2, currentY);
+                currentY += t.fontSize * 1.1; // Move to the top of the next line
+            });
+
+            // Reset shadow to not affect other elements
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+
+        // Function to dynamically load Google Font
+        function loadGoogleFont(fontName) {
+            const fontUrlName = fontName.replace(/\s/g, '+');
+            const newHref = `https://fonts.googleapis.com/css2?family=${fontUrlName}:wght@400;700&display=swap`;
+            
+            googleFontLink.href = newHref;
+
+            // Immediately draw with the new font (might be fallback if not loaded yet)
+            drawIcon();
+
+            // Small delay before waiting for font load, to give browser a chance to register the CSS
+            setTimeout(() => {
+                // Wait for the font to be loaded before drawing again
+                document.fonts.load(`400 ${parseInt(fontSizeTopInput.value) * scaleFactor}px '${fontName}'`).then(() => {
+                    // Font is loaded, redraw to ensure perfect rendering
+                    drawIcon();
+                }).catch(err => {
+                    console.error("Error loading font:", err);
+                    showMessage(`Errore nel caricamento del font: ${fontName}. Potrebbe non essere visualizzato correttamente.`, 'error');
+                    // Still draw, even if there's an error, to avoid a blank canvas
+                    drawIcon();
+                });
+            }, 50); // Small delay
+        }
+
+        // Function to update font size from buttons
+        function updateFontSizeFromButton(targetInput, targetValueSpan, size) {
+            targetInput.value = size;
+            targetValueSpan.textContent = `${size}px`;
+            drawIcon();
+            // Update active state of buttons
+            const buttonsContainer = targetInput.nextElementSibling; // Get the div with buttons
+            Array.from(buttonsContainer.children).forEach(button => {
+                if (parseInt(button.dataset.size) === size) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+
+        // Event handlers to update drawing
+        backgroundColorInput.addEventListener('input', drawIcon);
+        borderColorInput.addEventListener('input', drawIcon);
+        borderThicknessInput.addEventListener('input', () => {
+            borderThicknessValue.textContent = `${borderThicknessInput.value}px`;
+            drawIcon();
+        });
+        borderVisibleInput.addEventListener('change', drawIcon);
+        textColorInput.addEventListener('input', drawIcon);
+        iconTextTopInput.addEventListener('input', drawIcon);
+        iconTextBottomInput.addEventListener('input', drawIcon);
+
+        // Event listeners for number inputs
+        fontSizeTopInput.addEventListener('input', () => {
+            fontSizeTopValue.textContent = `${fontSizeTopInput.value}px`;
+            drawIcon();
+            // Remove active state from buttons when number input is used
+            const buttonsContainer = fontSizeTopInput.nextElementSibling;
+            Array.from(buttonsContainer.children).forEach(button => button.classList.remove('active'));
+        });
+        fontSizeBottomInput.addEventListener('input', () => {
+            fontSizeBottomValue.textContent = `${fontSizeBottomInput.value}px`;
+            drawIcon();
+            // Remove active state from buttons when number input is used
+            const buttonsContainer = fontSizeBottomInput.nextElementSibling;
+            Array.from(buttonsContainer.children).forEach(button => button.classList.remove('active'));
+        });
+
+        // Event listeners for font size buttons
+        document.querySelectorAll('.font-size-buttons button').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const size = parseInt(event.target.dataset.size);
+                const target = event.target.closest('.font-size-buttons').dataset.target;
+                if (target === 'fontSizeTop') {
+                    updateFontSizeFromButton(fontSizeTopInput, fontSizeTopValue, size);
+                } else if (target === 'fontSizeBottom') {
+                    updateFontSizeFromButton(fontSizeBottomInput, fontSizeBottomValue, size);
+                }
+            });
+        });
+
+        fontSelect.addEventListener('change', (event) => {
+            loadGoogleFont(event.target.value);
+        });
+
+        // Function to download the icon (captures canvas directly)
+        downloadButton.addEventListener('click', () => {
+            try {
+                const link = document.createElement('a');
+                link.download = 'icona-personalizzata.png';
+                link.href = iconCanvas.toDataURL('image/png'); // Capture high-resolution canvas
+                link.click();
+                showMessage('Icona scaricata con successo!', 'success');
+            } catch (e) {
+                console.error('Error exporting canvas:', e);
+                showMessage(`Error: Unable to download icon. Cause: ${e.message}.`, 'error');
+            }
+        });
+
+        // Initialize preview and load default font on page load
+        loadGoogleFont(fontSelect.value);
+        // Set initial active state for font size buttons
+        updateFontSizeFromButton(fontSizeTopInput, fontSizeTopValue, parseInt(fontSizeTopInput.value));
+        updateFontSizeFromButton(fontSizeBottomInput, fontSizeBottomValue, parseInt(fontSizeBottomInput.value));
+    </script>
+</body>
+</html>
+
+
