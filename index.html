@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore di Icone</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Generatore di Icone</h1>
+
+    <div class="container">
+        <div class="controls">
+            <h2>Personalizza</h2>
+            <div class="control-group">
+                <label for="shape">Forma:</label>
+                <select id="shape">
+                    <option value="circle">Cerchio</option>
+                    <option value="square">Quadrato</option>
+                    <option value="squircle">Quadrato Arrotondato</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="bgColor">Colore Sfondo:</label>
+                <input type="color" id="bgColor" value="#ff0000">
+            </div>
+
+            <hr>
+
+            <div class="control-group">
+                <label for="iconText">Testo (max 3 lettere):</label>
+                <input type="text" id="iconText" placeholder="Es. AP" maxlength="3">
+            </div>
+
+            <div class="control-group">
+                <label for="textColor">Colore Testo:</label>
+                <input type="color" id="textColor" value="#ffffff">
+            </div>
+
+            <button id="downloadBtn">Scarica Icona (PNG)</button>
+        </div>
+        <div class="preview">
+            <h2>Anteprima</h2>
+            <canvas id="iconCanvas" width="192" height="192"></canvas>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
