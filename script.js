@@ -7,11 +7,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgColorPicker = document.getElementById('bgColor');
     const textInput = document.getElementById('iconText');
     const textColorPicker = document.getElementById('textColor');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const btnPreview = document.getElementById('btnPreview'); // Verrà aggiunto in index.html
+    let currentDataURL = '';
 
     function drawIcon() {
         const shape = shapeSelector.value;
         const bgColor = bgColorPicker.value;
         const size = canvas.width;
+        const text = textInput.value;
+        const textColor = textColorPicker.value;
 
         // Pulisce il canvas
         ctx.clearRect(0, 0, size, size);
@@ -42,15 +47,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Disegna il testo
-        const text = textInput.value;
-        const textColor = textColorPicker.value;
-
         if (text) {
             ctx.fillStyle = textColor;
-            ctx.font = `bold ${size * 0.5}px Arial`; // Dimensione del font relativa alla dimensione dell'icona
+            // Adatta la dimensione del font alla lunghezza del testo
+            const baseSize = size / 2.2;
+            const fontFactor = text.length === 1 ? 1.2 : text.length === 2 ? 1 : 0.85;
+            ctx.font = `bold ${baseSize * fontFactor}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(text.toUpperCase(), size / 2, size / 2);
+            // Correzione per centrare il testo verticalmente
+            ctx.fillText(text.toUpperCase(), size / 2, size / 2 + 4);
+        }
+
+        // Aggiorna l'anteprima sul bottone e la var per il download
+        currentDataURL = canvas.toDataURL('image/png');
+        if (btnPreview) {
+            btnPreview.src = currentDataURL;
         }
     }
 
@@ -60,19 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
     textInput.addEventListener('input', drawIcon);
     textColorPicker.addEventListener('input', drawIcon);
 
-
-    // Disegna l'icona iniziale
-    drawIcon();
-
     // Logica per il download
-    const downloadBtn = document.getElementById('downloadBtn');
-    downloadBtn.addEventListener('click', () => {
-        const dataURL = canvas.toDataURL('image/png');
+    downloadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         const link = document.createElement('a');
-        link.href = dataURL;
+        link.href = currentDataURL;
         link.download = 'icon.png';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     });
+
+    // Disegna l'icona iniziale
+    drawIcon();
 });

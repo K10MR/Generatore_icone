@@ -4,48 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generatore di Icone</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Generatore di Icone</h1>
+    <main>
+        <h1>Generatore di Icone</h1>
+        <div class="container">
+            <div class="controls card">
+                <h2>Personalizza</h2>
+                <div class="control-group">
+                    <label for="shape">Forma:</label>
+                    <select id="shape">
+                        <option value="circle">Cerchio</option>
+                        <option value="square">Quadrato</option>
+                        <option value="squircle">Quadrato Arrotondato</option>
+                    </select>
+                </div>
 
-    <div class="container">
-        <div class="controls">
-            <h2>Personalizza</h2>
-            <div class="control-group">
-                <label for="shape">Forma:</label>
-                <select id="shape">
-                    <option value="circle">Cerchio</option>
-                    <option value="square">Quadrato</option>
-                    <option value="squircle">Quadrato Arrotondato</option>
-                </select>
+                <div class="control-group">
+                    <label for="bgColor">Colore Sfondo:</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="bgColor" value="#ff0000">
+                        <span>Seleziona un colore</span>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="control-group">
+                    <label for="iconText">Testo (max 3 lettere):</label>
+                    <input type="text" id="iconText" placeholder="Es. AP" maxlength="3" value="AP">
+                </div>
+
+                <div class="control-group">
+                    <label for="textColor">Colore Testo:</label>
+                     <div class="color-input-wrapper">
+                        <input type="color" id="textColor" value="#ffffff">
+                        <span>Seleziona un colore</span>
+                    </div>
+                </div>
+
+                <button id="downloadBtn">
+                    <img id="btnPreview" src="" alt="preview" width="20" height="20">
+                    Scarica Icona (PNG)
+                </button>
             </div>
-
-            <div class="control-group">
-                <label for="bgColor">Colore Sfondo:</label>
-                <input type="color" id="bgColor" value="#ff0000">
+            <div class="preview card">
+                <h2>Anteprima</h2>
+                <canvas id="iconCanvas" width="192" height="192"></canvas>
             </div>
-
-            <hr>
-
-            <div class="control-group">
-                <label for="iconText">Testo (max 3 lettere):</label>
-                <input type="text" id="iconText" placeholder="Es. AP" maxlength="3">
-            </div>
-
-            <div class="control-group">
-                <label for="textColor">Colore Testo:</label>
-                <input type="color" id="textColor" value="#ffffff">
-            </div>
-
-            <button id="downloadBtn">Scarica Icona (PNG)</button>
         </div>
-        <div class="preview">
-            <h2>Anteprima</h2>
-            <canvas id="iconCanvas" width="192" height="192"></canvas>
-        </div>
-    </div>
-
+    </main>
     <script src="script.js"></script>
 </body>
 </html>
